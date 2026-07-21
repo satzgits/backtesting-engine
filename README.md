@@ -1,5 +1,9 @@
 # Backtesting Engine
 
+![CI](https://github.com/satzgits/backtesting-engine/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+
 Event-driven backtesting framework in Python for quantitative trading strategies.
 
 ## Overview
