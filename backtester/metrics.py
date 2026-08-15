@@ -52,6 +52,32 @@ class PerformanceMetrics:
         return float(drawdown.min())
 
     @property
+    def downside_deviation(self):
+        r = self.returns
+        if len(r) == 0:
+            return 0
+        downside = r[r < 0]
+        return float(np.sqrt((downside ** 2).mean())) if len(downside) > 0 else 0
+
+    @property
+    def sortino_ratio(self):
+        if self.downside_deviation == 0:
+            return 0
+        excess = self.returns.mean() * 252 - self.risk_free_rate
+        return float(excess / (self.downside_deviation * np.sqrt(252)))
+
+    @property
+    def avg_holding_period(self):
+        days = []
+        for t in self.trades:
+            if t["direction"] == "SELL":
+                buys = [bt for bt in self.trades if bt["direction"] == "BUY" and bt["time"] < t["time"]]
+                if buys:
+                    buy_time = max(bt["time"] for bt in buys)
+                    days.append((t["time"] - buy_time).days)
+        return float(np.mean(days)) if days else 0
+
+    @property
     def win_rate(self):
         if not self.trades:
             return 0
@@ -116,6 +142,7 @@ class PerformanceMetrics:
         print(f"  Total Return:      {self.total_return:>+8.2%}")
         print(f"  CAGR:              {self.cagr:>+8.2%}")
         print(f"  Sharpe Ratio:      {self.sharpe_ratio:>8.2f}")
+        print(f"  Sortino Ratio:     {self.sortino_ratio:>8.2f}")
         print(f"  Volatility (ann):  {self.annualized_volatility:>8.2%}")
         print(f"  Max Drawdown:      {self.max_drawdown:>8.2%}")
         print(f"  Win Rate:          {self.win_rate:>8.2%}")
